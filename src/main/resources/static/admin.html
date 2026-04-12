@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenELIS — Admin Report Builder</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      background: #f4a261;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .header p {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .back-btn {
+      font-size: 12px;
+      color: #9ca3af;
+      text-decoration: none;
+      border: 1px solid #374151;
+      padding: 5px 12px;
+      border-radius: 6px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .back-btn:hover {
+      color: #fff;
+      border-color: #6b7280;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #f4a261;
+      box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* Fields checklist */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 520px) {
+      .fields-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .field-check:hover {
+      border-color: #f4a261;
+      background: #fffbf5;
+    }
+
+    .field-check.selected {
+      border-color: #f4a261;
+      background: #fff7ed;
+    }
+
+    .field-check input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #f4a261;
+    }
+
+    .field-check-info {
+      flex: 1;
+    }
+
+    .field-check-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+
+    .field-check-path {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 1px;
+      font-family: monospace;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .badge-date {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-string {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .badge-number {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    /* Filter builder */
+    .filter-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr 1.5fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .filter-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .filter-row select,
+    .filter-row input {
+      margin: 0;
+    }
+
+    .remove-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      color: #dc2626;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.12s;
+    }
+
+    .remove-btn:hover {
+      background: #fee2e2;
+    }
+
+    .add-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #f4a261;
+      border: 1px dashed #f4a261;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.12s;
+    }
+
+    .add-filter-btn:hover {
+      background: #fff7ed;
+    }
+
+    .fixed-value-input {
+      display: none;
+    }
+
+    .fixed-value-input.visible {
+      display: block;
+    }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    button {
+      padding: 9px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #1a1a2e;
+      transition: background 0.12s;
+      font-family: inherit;
+    }
+
+    button:hover {
+      background: #f9fafb;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #1a1a2e;
+      color: #fff;
+      border-color: #1a1a2e;
+    }
+
+    .btn-primary:hover {
+      background: #2d2d4e;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success */
+    .success-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .success-box h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #15803d;
+      margin-bottom: 6px;
+    }
+
+    .success-box p {
+      font-size: 13px;
+      color: #166534;
+      margin-bottom: 1rem;
+    }
+
+    .success-box a {
+      display: inline-block;
+      padding: 8px 18px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 7px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .success-box a:hover {
+      background: #2d2d4e;
+    }
+
+    /* Error */
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .empty-note {
+      font-size: 13px;
+      color: #9ca3af;
+      padding: 12px 0;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #e5e7eb;
+      border-top-color: #f4a261;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title-row .card-title {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">&#9998;</div>
+        <div>
+          <h1>Report Builder — Admin</h1>
+          <p>Create a new ad-hoc report — no Java, no redeployment needed</p>
+        </div>
+      </div>
+      <a href="index.html" class="back-btn">&#8592; Back to reports</a>
+    </div>
+
+    <!-- Success state -->
+    <div class="success-box" id="success-box">
+      <h2>&#10003; Report created successfully</h2>
+      <p id="success-msg">Your new report is ready to run.</p>
+      <a href="index.html">Go run it &rarr;</a>
+    </div>
+
+    <!-- Step 1: Report details -->
+    <div class="card" id="step1">
+      <div class="card-title-row">
+        <span class="step-num">1</span>
+        <div class="card-title">Report details</div>
+      </div>
+      <div class="form-group">
+        <label>Report name</label>
+        <input type="text" id="report-name" placeholder="e.g. Malaria Results by Date Range">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="report-desc" placeholder="What does this report show?"></textarea>
+      </div>
+    </div>
+
+    <!-- Step 2: Dataset -->
+    <div class="card" id="step2">
+      <div class="card-title-row">
+        <span class="step-num">2</span>
+        <div class="card-title">Select dataset</div>
+      </div>
+      <div class="form-group">
+        <label>Dataset (query root)</label>
+        <select id="dataset-select" onchange="onDatasetChange()">
+          <option value="">Loading datasets...</option>
+        </select>
+      </div>
+      <div id="dataset-hint" style="font-size:12px;color:#6b7280;margin-top:6px"></div>
+    </div>
+
+    <!-- Step 3: Columns -->
+    <div class="card" id="step3" style="display:none">
+      <div class="card-title-row">
+        <span class="step-num">3</span>
+        <div class="card-title">Select columns</div>
+      </div>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:10px">
+        Pick the fields that will appear as columns in the CSV output.
+      </p>
+      <div class="fields-grid" id="fields-grid">
+        <div class="empty-note">Select a dataset first.</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Filters -->
+    <div class="card" id="step4" style="display:none">
+      <div class="card-title-row">
+        <span class="step-num">4</span>
+        <div class="card-title">Add filters</div>
+      </div>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">
+        <strong>FIXED</strong> — value baked in, never shown to lab tech. &nbsp;
+        <strong>PROMPT_USER</strong> — lab tech fills this value at runtime.
+      </p>
+      <div id="filters-list"></div>
+      <button class="add-filter-btn" onclick="addFilterRow()">+ Add filter</button>
+    </div>
+
+    <!-- Step 5: Save -->
+    <div class="card" id="step5" style="display:none">
+      <div class="card-title-row">
+        <span class="step-num">5</span>
+        <div class="card-title">Save report</div>
+      </div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:12px">
+        This will insert rows into <code>reports</code>, <code>report_columns</code>,
+        and <code>report_filters</code>. The new report appears instantly in the dropdown.
+      </p>
+      <div class="actions">
+        <button class="btn-primary" id="save-btn" onclick="saveReport()">Save report</button>
+        <button onclick="resetForm()">Reset</button>
+      </div>
+      <div id="error-area"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = '/api';
+    let allFields = [];
+    let filterCount = 0;
+
+    // ── Init ──────────────────────────────────────
+    async function loadDatasets() {
+      try {
+        const res = await fetch(`${API}/datasets`);
+        const datasets = await res.json();
+        const sel = document.getElementById('dataset-select');
+        sel.innerHTML = '<option value="">— choose a dataset —</option>' +
+          datasets.map(d => `<option value="${d.id}" data-name="${d.name}" data-desc="${d.description}">${d.name}</option>`).join('');
+      } catch (e) {
+        document.getElementById('dataset-select').innerHTML =
+          '<option>Cannot reach backend on port 8080</option>';
+      }
+    }
+
+    // ── Dataset change ────────────────────────────
+    async function onDatasetChange() {
+      const sel = document.getElementById('dataset-select');
+      const opt = sel.options[sel.selectedIndex];
+      const id = sel.value;
+
+      document.getElementById('fields-grid').innerHTML = '';
+      document.getElementById('filters-list').innerHTML = '';
+      filterCount = 0;
+      allFields = [];
+
+      if (!id) {
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('step4').style.display = 'none';
+        document.getElementById('step5').style.display = 'none';
+        document.getElementById('dataset-hint').textContent = '';
+        return;
+      }
+
+      const hints = {
+        'RESULT_VALUE': 'Root: Result → Analysis → SampleItem → Sample + Test. Use when you need result values.',
+        'ANALYSIS_TEST': 'Root: Analysis → SampleItem → Sample + Test. Use for test execution data (no result value).'
+      };
+      document.getElementById('dataset-hint').textContent = hints[opt.dataset.name] || '';
+
+      // Fetch whitelisted fields
+      const res = await fetch(`${API}/datasets/${id}/fields`);
+      allFields = await res.json();
+
+      renderFieldsGrid();
+
+      document.getElementById('step3').style.display = 'block';
+      document.getElementById('step4').style.display = 'block';
+      document.getElementById('step5').style.display = 'block';
+    }
+
+    // ── Fields grid ───────────────────────────────
+    function renderFieldsGrid() {
+      const grid = document.getElementById('fields-grid');
+      grid.innerHTML = allFields.map(f => `
+      <label class="field-check" id="fc_${f.id}">
+  <input type="checkbox" value="${f.id}" onchange="toggleField(this)">
+      <div class="field-check-info">
+        <div class="field-check-label">${f.label}</div>
+        <div class="field-check-path">${f.fieldPath}</div>
+      </div>
+      <span class="badge badge-${f.dataType.toLowerCase()}">${f.dataType}</span>
+    </label>
+  `).join('');
+    }
+
+    function toggleField(cb) {
+      const el = cb.closest('.field-check');
+      el.classList.toggle('selected', cb.checked);
+    }
+
+    function getSelectedFields() {
+      return [...document.querySelectorAll('#fields-grid input[type="checkbox"]:checked')]
+        .map(cb => parseInt(cb.value));
+    }
+
+    // ── Filter rows ───────────────────────────────
+    function addFilterRow() {
+      filterCount++;
+      const id = `fr_${filterCount}`;
+
+      // Only filterable fields in the filter field dropdown
+      const filterableFields = allFields.filter(f => f.filterable);
+      const fieldOptions = filterableFields.map(f =>
+        `<option value="${f.id}" data-type="${f.dataType}">${f.label}</option>`
+      ).join('');
+
+      const row = document.createElement('div');
+      row.className = 'filter-row';
+      row.id = id;
+      row.innerHTML = `
+    <select onchange="onFilterFieldChange('${id}')">
+      <option value="">Select field</option>
+      ${fieldOptions}
+    </select>
+    <select id="${id}_op">
+      <option value="EQUAL">EQUAL</option>
+      <option value="BETWEEN">BETWEEN</option>
+      <option value="LIKE">LIKE</option>
+      <option value="IN">IN</option>
+    </select>
+    <select id="${id}_type" onchange="onFilterTypeChange('${id}')">
+      <option value="PROMPT_USER">PROMPT_USER</option>
+      <option value="FIXED">FIXED</option>
+    </select>
+    <input type="text" id="${id}_fixed" class="fixed-value-input"
+           placeholder="Fixed value">
+    <button class="remove-btn" onclick="removeFilter('${id}')">&#215;</button>
+  `;
+
+      document.getElementById('filters-list').appendChild(row);
+    }
+
+    function onFilterTypeChange(rowId) {
+      const type = document.getElementById(`${rowId}_type`).value;
+      const fixedInput = document.getElementById(`${rowId}_fixed`);
+      fixedInput.classList.toggle('visible', type === 'FIXED');
+    }
+
+    function onFilterFieldChange(rowId) {
+      // auto-set operator based on field type
+      const row = document.getElementById(rowId);
+      const sel = row.querySelector('select');
+      const opt = sel.options[sel.selectedIndex];
+      const fieldId = parseInt(sel.value);
+      if (!fieldId) return;
+      const field = allFields.find(f => f.id === fieldId);
+      if (!field) return;
+      const opSel = document.getElementById(`${rowId}_op`);
+      if (field.dataType === 'DATE') opSel.value = 'BETWEEN';
+      else opSel.value = 'EQUAL';
+    }
+
+    function removeFilter(rowId) {
+      document.getElementById(rowId)?.remove();
+    }
+
+    function getFilterRows() {
+      return [...document.querySelectorAll('#filters-list .filter-row')].map(row => {
+        const fieldSel = row.querySelectorAll('select')[0];
+        const opSel = row.querySelectorAll('select')[1];
+        const typeSel = row.querySelectorAll('select')[2];
+        const fixedInp = row.querySelector('input[type="text"]');
+        return {
+          fieldId: parseInt(fieldSel.value),
+          operator: opSel.value,
+          filterType: typeSel.value,
+          fixedValue: typeSel.value === 'FIXED' ? fixedInp.value.trim() : null
+        };
+      }).filter(f => f.fieldId);
+    }
+
+    // ── Save ──────────────────────────────────────
+    async function saveReport() {
+      document.getElementById('error-area').innerHTML = '';
+
+      const name = document.getElementById('report-name').value.trim();
+      const desc = document.getElementById('report-desc').value.trim();
+      const datasetId = parseInt(document.getElementById('dataset-select').value);
+
+      if (!name) {
+        showError('Report name is required.'); return;
+      }
+      if (!datasetId) {
+        showError('Please select a dataset.'); return;
+      }
+
+      const selectedFieldIds = getSelectedFields();
+      if (!selectedFieldIds.length) {
+        showError('Please select at least one column.'); return;
+      }
+
+      // Build columns with order
+      const columns = selectedFieldIds.map((fieldId, idx) => {
+        const field = allFields.find(f => f.id === fieldId);
+        return { fieldId, orderIndex: idx + 1, columnLabel: field?.label || '' };
+      });
+
+      const filters = getFilterRows();
+
+      // Validate FIXED filters have a value
+      for (const f of filters) {
+        if (f.filterType === 'FIXED' && !f.fixedValue) {
+          showError('All FIXED filters must have a value.'); return;
+        }
+      }
+
+      const body = { name, description: desc, datasetId, columns, filters };
+
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+      try {
+        const res = await fetch(`${API}/reports`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          showError(data.error);
+          return;
+        }
+
+        // Show success
+        document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+        const box = document.getElementById('success-box');
+        box.style.display = 'block';
+        document.getElementById('success-msg').textContent =
+          `"${data.name}" (id: ${data.id}) is now live in the reports dropdown.`;
+
+      } catch (e) {
+        showError('Could not reach backend. Is Spring Boot running on port 8080?');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Save report';
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('error-area').innerHTML =
+        `<div class="error">${msg}</div>`;
+    }
+
+    function resetForm() {
+      document.getElementById('report-name').value = '';
+      document.getElementById('report-desc').value = '';
+      document.getElementById('dataset-select').value = '';
+      document.getElementById('fields-grid').innerHTML = '';
+      document.getElementById('filters-list').innerHTML = '';
+      document.getElementById('step3').style.display = 'none';
+      document.getElementById('step4').style.display = 'none';
+      document.getElementById('step5').style.display = 'none';
+      document.getElementById('error-area').innerHTML = '';
+      allFields = [];
+      filterCount = 0;
+    }
+
+    loadDatasets();
+  </script>
+</body>
+
+</html>
