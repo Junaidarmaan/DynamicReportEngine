@@ -21,7 +21,6 @@ This is the core argument of the GSoC proposal, demonstrated end to end.
 
 ```
 openelis-report-engine/
-├── backend.py                          # Runnable Python demo (same logic as Spring Boot)
 ├── index.html                          # Lab tech UI — run reports, download CSV
 ├── admin.html                          # Admin UI — create new ad-hoc reports
 ├── pom.xml                             # Spring Boot build file
@@ -294,7 +293,7 @@ The new report is immediately available in `GET /api/reports` and can be run wit
 
 ## How to Run
 
-### Option 1 — Spring Boot (recommended)
+### Spring Boot 
 
 Requirements: Java 17+, Maven
 
@@ -306,17 +305,6 @@ mvn spring-boot:run
 Backend starts at `http://localhost:8080`. Data is seeded automatically. Open `index.html` in your browser.
 
 H2 console available at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:openelis`).
-
-### Option 2 — Python demo
-
-Requirements: Python 3.9+
-
-```bash
-pip install flask flask-cors
-python backend.py
-```
-
-Backend starts at `http://localhost:5000`. Same logic, same endpoints, same data — written in Python/Flask to allow immediate demo without Maven setup. Change `const API = 'http://localhost:5000/api'` in both HTML files to use this.
 
 ---
 
