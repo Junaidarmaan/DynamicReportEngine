@@ -36,7 +36,6 @@ public class AdminController {
 
     // POST /api/reports
     // Creates a new ad-hoc report definition — inserts into all 5 metadata tables
-    // No Java class needed, no redeployment needed
     @PostMapping("/reports")
     public ResponseEntity<Map<String, Object>> createReport(@RequestBody CreateReportRequest request) {
         Map<String, Object> result = adminReportService.createReport(request);

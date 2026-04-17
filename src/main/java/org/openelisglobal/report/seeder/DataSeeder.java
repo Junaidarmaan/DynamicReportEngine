@@ -120,12 +120,8 @@ public class DataSeeder implements CommandLineRunner {
 
         // Filters for report 1
         reportFilter(report1, fReceived, "BETWEEN", "PROMPT_USER", null); // user picks date range
-        reportFilter(report1, fResultType, "EQUAL", "FIXED", "N"); // silently: numeric only — wait, we have alpha too,
-                                                                   // so let's not use fixed for prototype
-        // Actually for demo purposes let's remove the fixed filter so all result types
-        // show
-        // and keep it clean. The engine still supports FIXED — shown in report 2.
-
+        reportFilter(report1, fResultType, "EQUAL", "FIXED", "N"); 
+        
         // ---- Report 2: HIV Viral Load Results (RESULT_VALUE) ----
         Report report2 = new Report();
         report2.setName("HIV Viral Load Report");
