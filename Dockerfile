@@ -1,14 +1,11 @@
-# Use lightweight Java 17 runtime
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set working directory
+# Step 1: Build the jar
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy jar into container
-COPY target/report-engine-1.0.0.jar app.jar
-
-# Cloud Run sets PORT env variable, default to 8080
-ENV PORT=8080
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Step 2: Run the app
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/report-engine-1.0.0.jar app.jar
+CMD ["java", "-jar", "app.jar"]
